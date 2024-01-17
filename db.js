@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const mongoURI = 'mongodb://localhost:27017';
+const mongoURI = 'mongodb+srv://rehan:iloveyouswaleha@notefly.jkls6yg.mongodb.net/Notefly?retryWrites=true&w=majority';
 
 
 
