@@ -5,14 +5,16 @@ const bcrypt = require("bcryptjs");
 const { body, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = "Rio";
+const fetchuser = require('../Middleware/fetchUser')
 // Create a user using post  "/api/auth/"
 
 router.post(
+  // Route 1
   "/createUser",
   [
     body("email", "Enter a valid email").isEmail(),
     body("password", "Must of atleast 5 charater").isLength({ min: 5 }),
-    body("name", "Enter a valid name").isLength({ min: 5 }),
+    body("name", "Enter a valid name").isLength({ min: 3 }),
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -51,8 +53,11 @@ router.post(
   }
 );
 
+
+
 // Authenticate a a user NO login req
 router.post(
+  // Route 2
   "/login",
   [
     body("email", "Enter a valid email").isEmail(),
@@ -79,7 +84,7 @@ router.post(
           id: user.id,
         },
       };
-      const authToken =  jwt.sign(payload, JWT_SECRET);
+      const authToken = jwt.sign(payload, JWT_SECRET);
       res.json(authToken);
     } catch (error) {
       console.log(error.message);
@@ -87,5 +92,19 @@ router.post(
     }
   }
 );
+
+// Route 3
+router.post('/getuser', fetchuser, async (req, res) => {
+  try {
+    // fetch user se user id mile
+    userId = req.user.id;
+    
+    const user = await User.findById(userId).select('-password')
+    res.send(user)
+  } catch (error) {
+    console.log(error.message);
+    res.status(500).send("some error occured");
+  }
+})
 
 module.exports = router;

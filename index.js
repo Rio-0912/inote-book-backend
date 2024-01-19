@@ -9,9 +9,9 @@ connectToMongo();
 const port = 5000
 app.use(express.json())
 
-// ROutes
+// Routes
 app.use('/api/auth', require('./Routes/auth'))
-app.use('/api/auth', require('./Routes/notes')) 
+app.use('/api/notes', require('./Routes/notes')) 
 
 
 
