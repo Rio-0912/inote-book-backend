@@ -12,21 +12,23 @@ router.post(
   // Route 1
   "/createUser",
   [
+    body("name", "Enter a valid name").isLength({ min: 3 }),
     body("email", "Enter a valid email").isEmail(),
     body("password", "Must of atleast 5 charater").isLength({ min: 5 }),
-    body("name", "Enter a valid name").isLength({ min: 3 }),
   ],
   async (req, res) => {
+    let  success = false
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({success, errors: errors.array() });
     }
     try {
       // user with same eamil wixits
       let user = await User.findOne({ email: req.body.email });
       console.log(user);
       if (user) {
-        return res.status(400).json({ error: "user with same email exits" });
+        success = false
+        return res.status(400).json({success, error: "user with same email exits" });
       }
       const salt = await bcrypt.genSalt(10);
       let secPass = await bcrypt.hash(req.body.password, salt);
@@ -44,10 +46,11 @@ router.post(
       };
 
       const authToken = jwt.sign(data, JWT_SECRET);
-
-      res.json({ authToken });
+      success = true
+      res.json({ success, authToken });
     } catch (error) {
       console.log(error.message);
+      success = false
       res.status(500).send("some error occured");
     }
   }
@@ -64,6 +67,7 @@ router.post(
     body("password", "Cannot be blank").exists(),
   ],
   async (req, res) => {
+    let  success = false
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
@@ -85,7 +89,8 @@ router.post(
         },
       };
       const authToken = jwt.sign(payload, JWT_SECRET);
-      res.json(authToken);
+      success = true
+      res.json({success, authToken});
     } catch (error) {
       console.log(error.message);
       res.status(500).send("some error occured");
@@ -97,8 +102,9 @@ router.post(
 router.post('/getuser', fetchuser, async (req, res) => {
   try {
     // fetch user se user id mile
+    let
     userId = req.user.id;
-    
+
     const user = await User.findById(userId).select('-password')
     res.send(user)
   } catch (error) {
